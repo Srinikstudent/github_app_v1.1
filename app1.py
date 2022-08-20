@@ -3,6 +3,7 @@ import importlib
 import os
 import sys
 import traceback
+import csv
 
 import aiohttp
 from aiohttp import web
@@ -18,6 +19,15 @@ router = routing.Router()
 def pred_label(issue, id, title , body):
     X = [title] + [body]
     label = model.predict(X)
+    mylist = [] 
+    data = [issue, title, body, label[0]]
+    mylist.append(data)
+    data = mylist
+    with open('pred_label_data.csv', 'a' ,encoding='UTF8', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerows(data)
+
+    
     return label[0]
 
 
@@ -25,7 +35,7 @@ def pred_label(issue, id, title , body):
 async def issue_opened_event(event, gh,*arg, **kwargs) :
 
     issues = event.data["issue"] ["id"] ["title"] ["body"]
-    label = pred_label(issues["author"],  issues["title"], issues["description"])
+    label = pred_label(issues["id"],  issues["title"], issues["body"])
     await gh.post(issues["labels_url"], data=[label])
 
 @routes.post("/")
