@@ -16,7 +16,7 @@ routes = web.RouteTableDef()
 router = routing.Router()
 
 def pred_label(issue, id, title , body):
-    X = [title] + [description]
+    X = [title] + [body]
     label = model.predict(X)
     return label[0]
 
