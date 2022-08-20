@@ -14,7 +14,7 @@ import joblib
 model = joblib.load('./notebooks/model1.sav')
 routes = web.RouteTableDef()
 router = routing.Router()
-def pred_label( author, title , description):
+def pred_label(issue, author, title , body):
     X = [title] + [description]
     label = model.predict(X)
     return label[0]
@@ -23,7 +23,7 @@ def pred_label( author, title , description):
 @router.register("issues", action="opened")
 async def issue_opened_event(event, gh,*arg, **kwargs) :
 
-    issues = event.data["issue"] ["author"] ["title"] ["description"]
+    issues = event.data["issue"] ["author"] ["title"] ["body"]
     label = pred_label(issues["author"],  issues["title"], issues["description"])
     await gh.post(issues["labels_url"], data=[label])
 
