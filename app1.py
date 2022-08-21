@@ -15,28 +15,22 @@ import joblib
 model = joblib.load('./notebooks/model1.sav')
 routes = web.RouteTableDef()
 router = routing.Router()
-
-def pred_label(issue, id, title , body):
+model =joblib.load('./notebooks/model1.sav')
+def pred_label( title , body):
     X = [title] + [body]
     label = model.predict(X)
-    mylist = [] 
-    data = [issue, title, body, label[0]]
-    mylist.append(data)
-    data = mylist
-    with open('pred_label_data.csv', 'a' ,encoding='UTF8', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerows(data)
-
-    
     return label[0]
-
-
-@router.register("issues", action="opened")
+@router.register("issues", action="opened", )
 async def issue_opened_event(event, gh,*arg, **kwargs) :
+    data =event.data
+    title = data["issue"]["title"]
+    body =data["issue"]['body']
+    label =pred_label(title,body)
+    url1 = data["issue"]["labels_url"]
+    await gh.post(url1, data = [{"name" :label}])
+    url2 = data["issue"]["comments_url"]
+    await gh.post(url2, data={"body": "Greetings 😄, i'm srini bot i predicted label for your issue, please give feed back by correcting label, it will help my creator improve me" })
 
-    issues = event.data["issue"] ["id"] ["title"] ["body"]
-    label = pred_label(issues["id"],  issues["title"], issues["body"])
-    await gh.post(issues["labels_url"], data=[label])
 
 @routes.post("/")
 async def main(request):
