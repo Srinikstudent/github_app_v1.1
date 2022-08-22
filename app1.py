@@ -17,7 +17,7 @@ routes = web.RouteTableDef()
 router = routing.Router()
 model =joblib.load('./notebooks/model1.sav')
 def pred_label( title , body):
-    X = [title] + [body]
+    X = [title +' '+ body]
     label = model.predict(X)
     return label[0]
 @router.register("issues", action="opened", )
